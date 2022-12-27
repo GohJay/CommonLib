@@ -8,11 +8,12 @@
 #define LOG_LEVEL_DEBUGW			L"DEBUG"
 #define LOG_LEVEL_SYSTEMW			L"SYSTEM"
 #define LOG_LEVEL_ERRORW			L"ERROR"
+#define LOG_LEVEL_UNKNOWNW			L"UNKNOWN"
 #define LOG_ERROR_BUFFER_TRUNCATED	L"!!! Buffer Truncated !!!"
 
 using namespace Jay;
 
-long Logger::_logIndex;
+DWORD Logger::_logIndex;
 int Logger::_logLevel;
 wchar_t Logger::_logPath[MAX_PATH];
 SRWLOCK Logger::_logLock;
@@ -49,22 +50,6 @@ void Logger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * fmt, .
 	if (_logLevel > logLevel)
 		return;
 
-	const wchar_t* pLogLevel;
-	switch (logLevel)
-	{
-	case LOG_LEVEL_DEBUG:
-		pLogLevel = LOG_LEVEL_DEBUGW;
-		break;
-	case LOG_LEVEL_SYSTEM:
-		pLogLevel = LOG_LEVEL_SYSTEMW;
-		break;
-	case LOG_LEVEL_ERROR:
-		pLogLevel = LOG_LEVEL_ERRORW;
-		break;
-	default:
-		return;
-	}
-
 	wchar_t buffer[256];
 	bool truncated;
 
@@ -73,13 +58,13 @@ void Logger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * fmt, .
 	HRESULT ret = StringCchVPrintf(buffer, sizeof(buffer) / 2, fmt, args);
 	va_end(args);
 
-	truncated = SUCCEEDED(ret) ? false : true;
+	truncated = SUCCEEDED(ret);
 
 	//--------------------------------------------------------------------
 	// Write Proc
 	//--------------------------------------------------------------------
 	AcquireSRWLockExclusive(&_logLock);
-	WriteProc(type, pLogLevel, buffer, truncated);
+	WriteProc(type, logLevel, buffer, truncated);
 	ReleaseSRWLockExclusive(&_logLock);
 }
 void Logger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYTE* byte, int byteLen)
@@ -87,6 +72,28 @@ void Logger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYT
 	if (_logLevel > logLevel)
 		return;
 
+	wchar_t hex[4];
+	wchar_t buffer[256];
+	bool truncated;
+
+	HRESULT ret = StringCchPrintf(buffer, sizeof(buffer) / 2, L"%s - ", log);
+	for (int i = 0; i < byteLen && SUCCEEDED(ret); i++)
+	{
+		StringCchPrintf(hex, sizeof(hex) / 2, L"%02X", byte[i]);
+		ret = StringCchCat(buffer, sizeof(buffer) / 2, hex);
+	}
+
+	truncated = SUCCEEDED(ret);
+
+	//--------------------------------------------------------------------
+	// Write Proc
+	//--------------------------------------------------------------------
+	AcquireSRWLockExclusive(&_logLock);
+	WriteProc(type, logLevel, buffer, truncated);
+	ReleaseSRWLockExclusive(&_logLock);
+}
+void Logger::WriteProc(const wchar_t* type, int logLevel, const wchar_t* buffer, bool truncated)
+{
 	const wchar_t* pLogLevel;
 	switch (logLevel)
 	{
@@ -100,31 +107,10 @@ void Logger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYT
 		pLogLevel = LOG_LEVEL_ERRORW;
 		break;
 	default:
-		return;
+		pLogLevel = LOG_LEVEL_UNKNOWNW;
+		break;
 	}
 
-	wchar_t hex[4];
-	wchar_t buffer[256];
-	bool truncated;
-
-	HRESULT ret = StringCchPrintf(buffer, sizeof(buffer) / 2, L"%s - ", log);
-	for (int i = 0; i < byteLen; i++)
-	{
-		StringCchPrintf(hex, sizeof(hex) / 2, L"%02X", byte[i]);
-		ret = StringCchCat(buffer, sizeof(buffer) / 2, hex);
-	}
-
-	truncated = SUCCEEDED(ret) ? false : true;
-
-	//--------------------------------------------------------------------
-	// Write Proc
-	//--------------------------------------------------------------------
-	AcquireSRWLockExclusive(&_logLock);
-	WriteProc(type, pLogLevel, buffer, truncated);
-	ReleaseSRWLockExclusive(&_logLock);
-}
-void Logger::WriteProc(const wchar_t* type, const wchar_t* logLevel, const wchar_t* buffer, bool truncated)
-{
 	if (!ExistFile(_logPath))
 	{
 		if (!MakeDirectory(_logPath))
@@ -159,7 +145,7 @@ void Logger::WriteProc(const wchar_t* type, const wchar_t* logLevel, const wchar
 			, stTime.tm_hour
 			, stTime.tm_min
 			, stTime.tm_sec
-			, logLevel
+			, pLogLevel
 			, ++_logIndex
 			, buffer);
 

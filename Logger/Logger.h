@@ -27,9 +27,9 @@ namespace Jay
 		static void WriteLog(const wchar_t* type, int logLevel, const wchar_t* fmt, ...);
 		static void WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYTE* byte, int byteLen);
 	private:
-		static void WriteProc(const wchar_t* type, const wchar_t* logLevel, const wchar_t* buffer, bool truncated);
+		static void WriteProc(const wchar_t* type, int logLevel, const wchar_t* buffer, bool truncated);
 	private:
-		static long _logIndex;
+		static DWORD _logIndex;
 		static int _logLevel;
 		static wchar_t _logPath[MAX_PATH];
 		static SRWLOCK _logLock;

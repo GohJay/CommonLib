@@ -1,7 +1,6 @@
 #ifndef __ASYNC_LOG__H_
 #define __ASYNC_LOG__H_
 #include <Windows.h>
-#include "ObjectPool.h"
 
 #define LOG_LEVEL_DEBUG		0
 #define LOG_LEVEL_SYSTEM	1
@@ -23,7 +22,7 @@ namespace Jay
 		struct LOG
 		{
 			wchar_t type[32];
-			const wchar_t* logLevel;
+			int logLevel;
 			wchar_t buffer[256];
 			bool truncated;
 		};
@@ -39,10 +38,9 @@ namespace Jay
 		static void CALLBACK WriteProc(ULONG_PTR dwData);
 		static unsigned int WINAPI WorkerThread(LPVOID lpParam);
 	private:
-		static long _logIndex;
+		static DWORD _logIndex;
 		static int _logLevel;
 		static wchar_t _logPath[MAX_PATH];
-		static ObjectPool<LOG> _logPool;
 		static HANDLE _hWorkerThread;
 		static HANDLE _hExitThreadEvent;
 		static AsyncLogger _instance;
