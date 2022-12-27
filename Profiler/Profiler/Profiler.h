@@ -4,8 +4,8 @@
 #define PROFILE_MODE	1
 
 #if PROFILE_MODE
-#define PRO_BEGIN(tag)	ProfileBegin(tag);
-#define PRO_END(tag)	ProfileEnd(tag);
+#define PRO_BEGIN(tag)	Jay::ProfileBegin(tag);
+#define PRO_END(tag)	Jay::ProfileEnd(tag);
 #else
 #define PRO_BEGIN(tag)
 #define PRO_END(tag)
@@ -16,10 +16,10 @@ namespace Jay
 	/**
 	* @file		Profile.h
 	* @brief	Profile Global Function
-	* @details	Profile 측정을 위한 전역 함수
+	* @details	Profile 측정을 위한 전역 함수 (thread-safe)
 	* @author   고재현
-	* @date		2022-5-28
-	* @version  1.0.0
+	* @date		2022-12-27
+	* @version  1.0.1
 	**/
 	void ProfileBegin(const wchar_t* tag);
 	void ProfileEnd(const wchar_t* tag);
