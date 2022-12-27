@@ -16,6 +16,9 @@ ConfigParser::~ConfigParser()
 }
 bool ConfigParser::LoadFile(const wchar_t * filepath)
 {
+	if (_buffer != nullptr)
+		return false;
+
 	FILE* pFile;
 	if (_wfopen_s(&pFile, filepath, L"rb, ccs = UTF-16LE") != 0)
 		return false;
