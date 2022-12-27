@@ -1,7 +1,6 @@
 #include "Profiler.h"
 #include <Windows.h>
 #include <stdio.h>
-#include <strsafe.h>
 #include <processthreadsapi.h>
 
 #define MAX_NAME      64
@@ -114,7 +113,7 @@ void Jay::ProfileBegin(const wchar_t* tag)
     switch (profileArray[index].lFlag)
     {
     case PROFILE_FLAG::INIT:
-        StringCchCopy(profileArray[index].szName, MAX_NAME, tag);
+        wcscpy_s(profileArray[index].szName, MAX_NAME, tag);
     case PROFILE_FLAG::RESET:
         profileArray[index].iTotalTime = 0;
         profileArray[index].iMax = 0;
