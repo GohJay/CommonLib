@@ -138,12 +138,12 @@
   <ItemGroup>
     <ClCompile Include="ConfigParser.cpp" />
     <ClCompile Include="ExcelParser.cpp" />
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="FileUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConfigParser.h" />
     <ClInclude Include="ExcelParser.h" />
-    <ClInclude Include="Util.h" />
+    <ClInclude Include="FileUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

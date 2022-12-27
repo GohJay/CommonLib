@@ -1,5 +1,5 @@
 #include "ExcelParser.h"
-#include "Util.h"
+#include "FileUtil.h"
 #include <fstream>
 #include <string.h>
 
@@ -50,7 +50,7 @@ bool ExcelParser::LoadFile(const wchar_t * filepath)
 }
 bool ExcelParser::SaveFile()
 {
-	if (!Util::ExistFile(_filepath))
+	if (!ExistFile(_filepath))
 		return false;
 
 	wchar_t lockFile[_MAX_PATH];
@@ -74,8 +74,8 @@ bool ExcelParser::SaveFile()
 		file << L'\n';
 	}
 	file.close();
-
-	Util::Rename(lockFile, _filepath, true);
+	
+	Rename(lockFile, _filepath, true);
 	return true;
 }
 void ExcelParser::SelectRow(int y)

@@ -27,7 +27,7 @@
     <ClCompile Include="ExcelParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Util.cpp">
+    <ClCompile Include="FileUtil.cpp">
       <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="ExcelParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Util.h">
+    <ClInclude Include="FileUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
