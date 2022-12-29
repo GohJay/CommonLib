@@ -17,8 +17,8 @@ struct PROFILE
 {
     LONG lFlag;                 // 프로파일의 사용 여부.
     DWORD64 iTotalTime;         // 전체 사용시간 카운터 Time. (출력시 호출회수로 나누어 평균 구함)
-    DWORD64 iMin;               // 최소 사용시간 카운터 Time. (초단위로 계산하여 저장)
-    DWORD64 iMax;               // 최대 사용시간 카운터 Time. (초단위로 계산하여 저장)
+    DWORD64 iMin[2];            // 최소 사용시간 카운터 Time. (초단위로 계산하여 저장)
+    DWORD64 iMax[2];            // 최대 사용시간 카운터 Time. (초단위로 계산하여 저장)
     DWORD64 iCall;              // 누적 호출 횟수.
     LARGE_INTEGER lStartTime;   // 프로파일 실행 시간.
     WCHAR szName[MAX_NAME];     // 프로파일 이름.
@@ -116,8 +116,10 @@ void Jay::ProfileBegin(const wchar_t* tag)
         wcscpy_s(profileArray[index].szName, MAX_NAME, tag);
     case PROFILE_FLAG::RESET:
         profileArray[index].iTotalTime = 0;
-        profileArray[index].iMax = 0;
-        profileArray[index].iMin = 0;
+        profileArray[index].iMax[0] = 0;
+        profileArray[index].iMax[1] = 0;
+        profileArray[index].iMin[0] = 0;
+        profileArray[index].iMin[1] = 0;
         profileArray[index].iCall = 0;
         profileArray[index].lFlag = PROFILE_FLAG::USING;
     default:
@@ -140,10 +142,20 @@ void Jay::ProfileEnd(const wchar_t* tag)
     QueryPerformanceCounter(&lEndTime);
 
     DWORD64 between = lEndTime.QuadPart - profileArray[index].lStartTime.QuadPart;
-    if (profileArray[index].iMin > between || profileArray[index].iMin == 0)
-        profileArray[index].iMin = between;
-    if (profileArray[index].iMax < between)
-        profileArray[index].iMax = between;
+    if (profileArray[index].iMin[1] > between || profileArray[index].iMin[1] == 0)
+    {
+        if (profileArray[index].iMin[0] > between || profileArray[index].iMin[0] == 0)
+            profileArray[index].iMin[0] = between;
+        else
+            profileArray[index].iMin[1] = between;
+    }
+    if (profileArray[index].iMax[1] < between)
+    {
+        if (profileArray[index].iMax[0] < between)
+            profileArray[index].iMax[0] = between;
+        else
+            profileArray[index].iMax[1] = between;
+    }
     profileArray[index].iTotalTime += between;
     profileArray[index].iCall++;
 }
@@ -156,7 +168,7 @@ void Jay::ProfileDataOutText(const wchar_t* filename)
     LONGLONG microsecond = g_ProfileManager._freq.QuadPart / (1000 * 1000);
     for (int count = 0; count < g_ProfileManager._threadCount && count < MAX_THREAD; count++)
     {
-        fwprintf_s(pFile, L"TID,Name,Average,Max,Min,Call\n");
+        fprintf_s(pFile, "TID\tName\tAverage\tMax\tMin\tCall\n");
 
         PROFILE* profileArray = g_ProfileManager._profileTable[count];
         DWORD threadId = g_ProfileManager._threadIdTable[count];
@@ -166,16 +178,16 @@ void Jay::ProfileDataOutText(const wchar_t* filename)
                 continue;
 
             const wchar_t* name = profileArray[index].szName;
-            double max = (double)profileArray[index].iMax / microsecond;
-            double min = (double)profileArray[index].iMin / microsecond;
+            double max = (double)profileArray[index].iMax[1] / microsecond;
+            double min = (double)profileArray[index].iMin[1] / microsecond;
             unsigned long long call = profileArray[index].iCall - 2;
-            double totaltime = profileArray[index].iTotalTime - profileArray[index].iMax - profileArray[index].iMin;
-            double average = (totaltime / call) / microsecond;
+            double totaltime = profileArray[index].iTotalTime - profileArray[index].iMax[0] - profileArray[index].iMin[0];
+            double average = (double)(totaltime / call) / microsecond;
 
-            fwprintf_s(pFile, L"0x%04X,%ls,%.4lfus,%.4lfus,%.4lfus,%I64d\n", threadId, name, average, max, min, call);
+            fprintf_s(pFile, "0x%04X\t%ls\t%.4lfμs\t%.4lfμs\t%.4lfμs\t%I64d\n", threadId, name, average, max, min, call);
         }
 
-        fwprintf_s(pFile, L"\n\n");
+        fprintf_s(pFile, "\n\n");
     }
     
     fclose(pFile);

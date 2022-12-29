@@ -46,7 +46,7 @@ int main()
 	for (int i = 0; i < MAX_THREAD; i++)
 		CloseHandle(hTestThread[i]);
 
-	ProfileDataOutText(L"Profile.csv");
+	ProfileDataOutText(L"Profile.tsv");
 
 	timeEndPeriod(1);
     return 0;
