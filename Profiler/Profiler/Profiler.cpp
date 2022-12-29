@@ -145,14 +145,20 @@ void Jay::ProfileEnd(const wchar_t* tag)
     if (profileArray[index].iMin[1] > between || profileArray[index].iMin[1] == 0)
     {
         if (profileArray[index].iMin[0] > between || profileArray[index].iMin[0] == 0)
+        {
+            profileArray[index].iMin[1] = profileArray[index].iMin[0];
             profileArray[index].iMin[0] = between;
+        }
         else
             profileArray[index].iMin[1] = between;
     }
     if (profileArray[index].iMax[1] < between)
     {
         if (profileArray[index].iMax[0] < between)
+        {
+            profileArray[index].iMax[1] = profileArray[index].iMax[0];
             profileArray[index].iMax[0] = between;
+        }
         else
             profileArray[index].iMax[1] = between;
     }
