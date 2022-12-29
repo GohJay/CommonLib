@@ -192,7 +192,7 @@ void AsyncLogger::WriteProc(ULONG_PTR dwData)
 				, stTime.tm_min
 				, stTime.tm_sec
 				, LOG_LEVEL_ERRORW
-				, ++_logIndex
+				, _logIndex
 				, LOG_ERROR_BUFFER_TRUNCATED);
 		}
 
@@ -203,9 +203,13 @@ void AsyncLogger::WriteProc(ULONG_PTR dwData)
 }
 unsigned int __stdcall AsyncLogger::WorkerThread(LPVOID lpParam)
 {
-	//--------------------------------------------------------------------
-	// Alertable Wait 상태 진입
-	//--------------------------------------------------------------------
-	WaitForSingleObjectEx(_hExitThreadEvent, INFINITE, TRUE);
+	DWORD ret;
+	do
+	{
+		//--------------------------------------------------------------------
+		// Alertable Wait 상태 진입
+		//--------------------------------------------------------------------
+		ret = WaitForSingleObjectEx(_hExitThreadEvent, INFINITE, TRUE);
+	} while (ret == WAIT_IO_COMPLETION);
 	return 0;
 }

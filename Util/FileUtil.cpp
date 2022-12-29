@@ -15,10 +15,7 @@ bool Jay::MakeDirectory(const wchar_t* filepath)
 	if (!ExistFile(filepath))
 	{
 		if (GetParentDirectory(filepath, parentpath))
-		{
-			if (!MakeDirectory(parentpath))
-				return false;
-		}
+			MakeDirectory(parentpath);
 
 		if (!CreateDirectory(filepath, NULL))
 			return false;

@@ -161,7 +161,7 @@ void Logger::WriteProc(const wchar_t* type, int logLevel, const wchar_t* buffer,
 				, stTime.tm_min
 				, stTime.tm_sec
 				, LOG_LEVEL_ERRORW
-				, ++_logIndex
+				, _logIndex
 				, LOG_ERROR_BUFFER_TRUNCATED);
 		}
 
