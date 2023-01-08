@@ -58,7 +58,7 @@ void Logger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * fmt, .
 	HRESULT ret = StringCchVPrintf(buffer, sizeof(buffer) / 2, fmt, args);
 	va_end(args);
 
-	truncated = SUCCEEDED(ret);
+	truncated = FAILED(ret);
 
 	//--------------------------------------------------------------------
 	// Write Proc
@@ -83,7 +83,7 @@ void Logger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYT
 		ret = StringCchCat(buffer, sizeof(buffer) / 2, hex);
 	}
 
-	truncated = SUCCEEDED(ret);
+	truncated = FAILED(ret);
 
 	//--------------------------------------------------------------------
 	// Write Proc

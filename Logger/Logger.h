@@ -13,8 +13,8 @@ namespace Jay
 		/**
 		* @file		Logger.h
 		* @brief	File Logger Class
-		* @details	íŒŒì¼ ë¡œê·¸ ì¶œë ¥ìš© í´ë˜ìŠ¤
-		* @author   ê³ ì¬í˜„
+		* @details	ÆÄÀÏ ·Î±× Ãâ·Â¿ë Å¬·¡½º
+		* @author   °íÀçÇö
 		* @date		2022-12-24
 		* @version  1.0.2
 		**/

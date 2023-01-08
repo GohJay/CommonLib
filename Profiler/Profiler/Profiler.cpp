@@ -5,7 +5,7 @@
 
 #define MAX_NAME      64
 #define MAX_PROFILE   50
-#define MAX_THREAD    20
+#define MAX_THREAD    30
 
 enum PROFILE_FLAG
 {
@@ -40,25 +40,24 @@ private:
     PROFILE _profileTable[MAX_THREAD][MAX_PROFILE];
     DWORD _threadIdTable[MAX_THREAD];
     DWORD _threadCount;
-    DWORD _tlsProfile;
     LARGE_INTEGER _freq;
+    __declspec(thread) static PROFILE* _tlsProfile;
 };
 
+__declspec(thread) PROFILE* ProfileManager::_tlsProfile = NULL;
 ProfileManager::ProfileManager()
 {
     ZeroMemory(_profileTable, sizeof(_profileTable));
     ZeroMemory(_threadIdTable, sizeof(_threadIdTable));
     _threadCount = 0;
-    _tlsProfile = TlsAlloc();
     QueryPerformanceFrequency(&_freq);
 }
 ProfileManager::~ProfileManager()
 {
-    TlsFree(_tlsProfile);
 }
 PROFILE* ProfileManager::GetCurrentProfileArray()
 {
-    PROFILE* profileArray = (PROFILE*)TlsGetValue(_tlsProfile);
+    PROFILE* profileArray = _tlsProfile;
     if (profileArray == NULL)
     {
         int count = InterlockedIncrement(&_threadCount) - 1;
@@ -66,8 +65,8 @@ PROFILE* ProfileManager::GetCurrentProfileArray()
             return NULL;
 
         _threadIdTable[count] = GetCurrentThreadId();
-        TlsSetValue(_tlsProfile, _profileTable[count]);
         profileArray = _profileTable[count];
+        _tlsProfile = profileArray;
     }
     return profileArray;
 }
@@ -168,7 +167,7 @@ void Jay::ProfileEnd(const wchar_t* tag)
 void Jay::ProfileDataOutText(const wchar_t* filename)
 {
     FILE* pFile;
-    if (_wfopen_s(&pFile, filename, L"wt") != 0)
+    if (_wfopen_s(&pFile, filename, L"at") != 0)
         return;
 
     LONGLONG microsecond = g_ProfileManager._freq.QuadPart / (1000 * 1000);

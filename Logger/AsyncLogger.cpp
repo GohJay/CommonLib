@@ -83,7 +83,7 @@ void AsyncLogger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * f
 	HRESULT ret = StringCchVPrintf(pLog->buffer, sizeof(pLog->buffer) / 2, fmt, args);
 	va_end(args);
 
-	pLog->truncated = SUCCEEDED(ret);
+	pLog->truncated = FAILED(ret);
 
 	//--------------------------------------------------------------------
 	// Write Post
@@ -109,7 +109,7 @@ void AsyncLogger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log
 		ret = StringCchCat(pLog->buffer, sizeof(pLog->buffer) / 2, hex);
 	}
 	
-	pLog->truncated = SUCCEEDED(ret);
+	pLog->truncated = FAILED(ret);
 
 	//--------------------------------------------------------------------
 	// Write Post
