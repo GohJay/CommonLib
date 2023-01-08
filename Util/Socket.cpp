@@ -11,7 +11,7 @@ bool Jay::Cleanup()
 {
     return WSACleanup() == 0;
 }
-int Jay::DomainToIP(const wchar_t* domain, IN_ADDR* address)
+int Jay::DomainToIP(const wchar_t* domain, IN_ADDR* address, int addressCount)
 {
     ADDRINFOW* addrInfo;
     if (GetAddrInfo(domain, L"0", NULL, &addrInfo) != 0)
@@ -20,7 +20,7 @@ int Jay::DomainToIP(const wchar_t* domain, IN_ADDR* address)
     ADDRINFOW* cur = addrInfo;
     SOCKADDR_IN* sockAddr;
     int count;
-    for (count = 0; count < MAX_ADDR && cur; count++)
+    for (count = 0; count < addressCount && cur; count++)
     {
         sockAddr = (SOCKADDR_IN*)cur->ai_addr;
         address[count] = sockAddr->sin_addr;
