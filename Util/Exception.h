@@ -7,20 +7,13 @@ namespace Jay
 	class Exception : public std::exception
 	{
 	public:
-		Exception(int errCode, const char* errMessage) 
-			: _errCode(errCode), std::exception(errMessage)
-		{
-		}
-		~Exception()
-		{
-		}
+		Exception(int error) : _error(error) {}
+		virtual ~Exception() {}
 	public:
-		int GetLastError()
-		{
-			return _errCode;
-		}
+		int GetLastError() { return _error; }
+		virtual const char* what() const = 0;
 	private:
-		int _errCode;
+		int _error;
 	};
 }
 
