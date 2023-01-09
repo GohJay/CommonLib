@@ -15,7 +15,6 @@
 #define MAKE_NODE(address, stamp)	(PVOID)((ULONG_PTR)(address) | (stamp))
 
 #include <new.h>
-#include <exception>
 
 namespace Jay
 {
@@ -146,7 +145,7 @@ namespace Jay
 			node = (NODE*)data;
 #if SECURE_MODE
 			if (node->signature != (size_t)this)
-				throw std::exception("Incorrect signature");
+				throw;
 #endif
 			if (_placementNew)
 				node->data.~T();

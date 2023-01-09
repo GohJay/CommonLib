@@ -5,16 +5,16 @@
 namespace Jay
 {
 	inline
-		size_t GetUserAddressRange()
+		size_t GetMaximumUserAddress()
 	{
 		SYSTEM_INFO systemInfo;
 		GetSystemInfo(&systemInfo);
 		return (size_t)systemInfo.lpMaximumApplicationAddress;
 	}
 	inline
-		size_t GetKernelAddressRange()
+		size_t GetMinimumKernelAddress()
 	{
-		return ~GetUserAddressRange();
+		return ~GetMaximumUserAddress();
 	}
 }
 
