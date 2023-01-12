@@ -102,7 +102,7 @@ namespace Jay
 			node = (NODE*)data;
 #if SECURE_MODE
 			if (node->signature != (size_t)this)
-				throw std::exception("Incorrect signature");
+				throw;
 #endif
 			chunk = (CHUNK*)node->chunk;
 			count = InterlockedIncrement(&chunk->freeCount);
