@@ -4,6 +4,32 @@
 
 namespace Jay
 {
+	enum LOCK_TYPE
+	{
+		EXCLUSIVE = 0,
+		SHARED
+	};
+
+	class SRWLock
+	{
+		/**
+		* @file		Lock.h
+		* @brief	SRWLOCK Wrapping Class
+		* @details
+		* @author	고재현
+		* @date		2023-01-21
+		* @version	1.0.1
+		**/
+	public:
+		SRWLock();
+		~SRWLock();
+	public:
+		void Lock(LOCK_TYPE type = EXCLUSIVE);
+		void UnLock(LOCK_TYPE type = EXCLUSIVE);
+	private:
+		SRWLOCK _lock;
+	};
+
 	class CSLock
 	{
 		/**
@@ -11,15 +37,15 @@ namespace Jay
 		* @brief	CriticalSection Wrapping Class
 		* @details	CriticalSection Lock Class
 		* @author	고재현
-		* @date		2022-11-03
-		* @version	1.0.0
+		* @date		2023-01-21
+		* @version	1.0.1
 		**/
 	public:
 		CSLock();
 		~CSLock();
 	public:
-		void Lock();
-		void UnLock();
+		void Lock(LOCK_TYPE type = EXCLUSIVE);
+		void UnLock(LOCK_TYPE type = EXCLUSIVE);
 	private:
 		CRITICAL_SECTION _lock;
 	};
@@ -31,15 +57,15 @@ namespace Jay
 		* @brief	AddressLock Class
 		* @details	WaitOnAddress Lock Class
 		* @author   고재현
-		* @date		2022-10-25
-		* @version  1.0.0
+		* @date		2023-01-21
+		* @version	1.0.1
 		**/
 	public:
 		AddressLock();
 		~AddressLock();
 	public:
-		void Lock();
-		void UnLock();
+		void Lock(LOCK_TYPE type = EXCLUSIVE);
+		void UnLock(LOCK_TYPE type = EXCLUSIVE);
 	private:
 		volatile long _lock;
 	};
@@ -49,43 +75,45 @@ namespace Jay
 		/**
 		* @file		Lock.h
 		* @brief	SpinLock Class
-		* @details	Busy-wait Lock Class (non context switch)
+		* @details	Busy-wait Lock Class
 		* @author   고재현
-		* @date		2022-10-13
-		* @version  1.0.0
+		* @date		2023-01-21
+		* @version	1.0.1
 		**/
 	public:
 		SpinLock();
 		~SpinLock();
 	public:
-		void Lock();
-		void UnLock();
+		void Lock(LOCK_TYPE type = EXCLUSIVE);
+		void UnLock(LOCK_TYPE type = EXCLUSIVE);
 	private:
 		volatile long _lock;
 	};
 
 	template<typename T>
-	class GUARDLOCK
+	class GUARD_LOCK
 	{
 		/**
 		* @file		Lock.h
 		* @brief	Lock 객체에 대한 Guard Class
 		* @details	Lock 객체 사용으로 발생할 수 있는 Dead-lock을 방지하기 위한 Guard Class
 		* @author   고재현
-		* @date		2022-10-13
-		* @version  1.0.0
+		* @date		2023-01-21
+		* @version	1.0.1
 		**/
 	public:
-		GUARDLOCK(T* lock) : _lock(lock)
+		GUARD_LOCK(T* lock, LOCK_TYPE type = EXCLUSIVE) 
+			: _lock(lock), _type(type)
 		{
-			this->_lock->Lock();
+			_lock->Lock(_type);
 		}
-		~GUARDLOCK()
+		~GUARD_LOCK()
 		{
-			this->_lock->UnLock();
+			_lock->UnLock(_type);
 		}
 	private:
 		T* _lock;
+		LOCK_TYPE _type;
 	};
 }
 
