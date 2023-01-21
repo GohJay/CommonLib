@@ -15,7 +15,7 @@ namespace Jay
 		/**
 		* @file		Lock.h
 		* @brief	SRWLOCK Wrapping Class
-		* @details
+		* @details  Slim Reader-Writer Lock Class
 		* @author	°íÀçÇö
 		* @date		2023-01-21
 		* @version	1.0.1
