@@ -11,33 +11,29 @@ SRWLock::SRWLock()
 SRWLock::~SRWLock()
 {
 }
-void SRWLock::Lock(LOCK_TYPE type)
+bool SRWLock::TryLock()
 {
-	switch (type)
-	{
-	case EXCLUSIVE:
-		AcquireSRWLockExclusive(&_lock);
-		break;
-	case SHARED:
-		AcquireSRWLockShared(&_lock);
-		break;
-	default:
-		break;
-	}
+	return TryAcquireSRWLockExclusive(&_lock);
 }
-void SRWLock::UnLock(LOCK_TYPE type)
+void SRWLock::Lock()
 {
-	switch (type)
-	{
-	case EXCLUSIVE:
-		ReleaseSRWLockExclusive(&_lock);
-		break;
-	case SHARED:
-		ReleaseSRWLockShared(&_lock);
-		break;
-	default:
-		break;
-	}
+	AcquireSRWLockExclusive(&_lock);
+}
+void SRWLock::UnLock()
+{
+	ReleaseSRWLockExclusive(&_lock);
+}
+bool SRWLock::TryLock_Shared()
+{
+	return TryAcquireSRWLockShared(&_lock);
+}
+void SRWLock::Lock_Shared()
+{
+	AcquireSRWLockShared(&_lock);
+}
+void SRWLock::UnLock_Shared()
+{
+	ReleaseSRWLockShared(&_lock);
 }
 
 CSLock::CSLock()
@@ -48,11 +44,15 @@ CSLock::~CSLock()
 {
 	DeleteCriticalSection(&_lock);
 }
-void CSLock::Lock(LOCK_TYPE type)
+bool CSLock::TryLock()
+{
+	return TryEnterCriticalSection(&_lock);
+}
+void CSLock::Lock()
 {
 	EnterCriticalSection(&_lock);
 }
-void CSLock::UnLock(LOCK_TYPE type)
+void CSLock::UnLock()
 {
 	LeaveCriticalSection(&_lock);
 }
@@ -63,7 +63,11 @@ AddressLock::AddressLock() : _lock(FALSE)
 AddressLock::~AddressLock()
 {
 }
-void AddressLock::Lock(LOCK_TYPE type)
+bool AddressLock::TryLock()
+{
+	return (InterlockedExchange(&_lock, TRUE) == FALSE);
+}
+void AddressLock::Lock()
 {
 	long compare = TRUE;
 	while (InterlockedExchange(&_lock, TRUE) != FALSE)
@@ -71,7 +75,7 @@ void AddressLock::Lock(LOCK_TYPE type)
 		WaitOnAddress(&_lock, &compare, sizeof(long), INFINITE);
 	}
 }
-void AddressLock::UnLock(LOCK_TYPE type)
+void AddressLock::UnLock()
 {
 	_lock = FALSE;
 	WakeByAddressSingle((void*)&_lock);
@@ -83,14 +87,18 @@ SpinLock::SpinLock() : _lock(FALSE)
 SpinLock::~SpinLock()
 {
 }
-void SpinLock::Lock(LOCK_TYPE type)
+bool SpinLock::TryLock()
+{
+	return (InterlockedExchange(&_lock, TRUE) == FALSE);
+}
+void SpinLock::Lock()
 {
 	while (InterlockedExchange(&_lock, TRUE) != FALSE)
 	{
 		YieldProcessor();
 	}
 }
-void SpinLock::UnLock(LOCK_TYPE type)
+void SpinLock::UnLock()
 {
 	_lock = FALSE;
 }

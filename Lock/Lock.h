@@ -4,12 +4,6 @@
 
 namespace Jay
 {
-	enum LOCK_TYPE
-	{
-		EXCLUSIVE = 0,
-		SHARED
-	};
-
 	class SRWLock
 	{
 		/**
@@ -17,15 +11,19 @@ namespace Jay
 		* @brief	SRWLOCK Wrapping Class
 		* @details  Slim Reader-Writer Lock Class
 		* @author	고재현
-		* @date		2023-01-21
-		* @version	1.0.1
+		* @date		2023-01-27
+		* @version	1.0.3
 		**/
 	public:
 		SRWLock();
 		~SRWLock();
 	public:
-		void Lock(LOCK_TYPE type = EXCLUSIVE);
-		void UnLock(LOCK_TYPE type = EXCLUSIVE);
+		bool TryLock();
+		void Lock();
+		void UnLock();
+		bool TryLock_Shared();
+		void Lock_Shared();
+		void UnLock_Shared();
 	private:
 		SRWLOCK _lock;
 	};
@@ -37,15 +35,16 @@ namespace Jay
 		* @brief	CriticalSection Wrapping Class
 		* @details	CriticalSection Lock Class
 		* @author	고재현
-		* @date		2023-01-21
-		* @version	1.0.1
+		* @date		2023-01-27
+		* @version	1.0.3
 		**/
 	public:
 		CSLock();
 		~CSLock();
 	public:
-		void Lock(LOCK_TYPE type = EXCLUSIVE);
-		void UnLock(LOCK_TYPE type = EXCLUSIVE);
+		bool TryLock();
+		void Lock();
+		void UnLock();
 	private:
 		CRITICAL_SECTION _lock;
 	};
@@ -57,15 +56,16 @@ namespace Jay
 		* @brief	AddressLock Class
 		* @details	WaitOnAddress Lock Class
 		* @author   고재현
-		* @date		2023-01-21
-		* @version	1.0.1
+		* @date		2023-01-27
+		* @version	1.0.3
 		**/
 	public:
 		AddressLock();
 		~AddressLock();
 	public:
-		void Lock(LOCK_TYPE type = EXCLUSIVE);
-		void UnLock(LOCK_TYPE type = EXCLUSIVE);
+		bool TryLock();
+		void Lock();
+		void UnLock();
 	private:
 		volatile long _lock;
 	};
@@ -77,43 +77,66 @@ namespace Jay
 		* @brief	SpinLock Class
 		* @details	Busy-wait Lock Class
 		* @author   고재현
-		* @date		2023-01-21
-		* @version	1.0.1
+		* @date		2023-01-27
+		* @version	1.0.3
 		**/
 	public:
 		SpinLock();
 		~SpinLock();
 	public:
-		void Lock(LOCK_TYPE type = EXCLUSIVE);
-		void UnLock(LOCK_TYPE type = EXCLUSIVE);
+		bool TryLock();
+		void Lock();
+		void UnLock();
 	private:
 		volatile long _lock;
 	};
 
 	template<typename T>
-	class GUARD_LOCK
+	class LockGuard
 	{
 		/**
 		* @file		Lock.h
 		* @brief	Lock 객체에 대한 Guard Class
-		* @details	Lock 객체 사용으로 발생할 수 있는 Dead-lock을 방지하기 위한 Guard Class
+		* @details	Lock 객체 사용으로 발생할 수 있는 Dead-lock을 방지하기 위한 Guard Class (Exclusive lock)
 		* @author   고재현
-		* @date		2023-01-21
-		* @version	1.0.1
+		* @date		2023-01-27
+		* @version	1.0.2
 		**/
 	public:
-		GUARD_LOCK(T* lock, LOCK_TYPE type = EXCLUSIVE) 
-			: _lock(lock), _type(type)
+		LockGuard(T* lock) : _lock(lock)
 		{
-			_lock->Lock(_type);
+			_lock->Lock();
 		}
-		~GUARD_LOCK()
+		~LockGuard()
 		{
-			_lock->UnLock(_type);
+			_lock->UnLock();
 		}
 	private:
 		T* _lock;
-		LOCK_TYPE _type;
+	};
+
+	template<typename T>
+	class LockGuard_Shared
+	{
+		/**
+		* @file		Lock.h
+		* @brief	Lock 객체에 대한 Guard Class
+		* @details	Lock 객체 사용으로 발생할 수 있는 Dead-lock을 방지하기 위한 Guard Class (Shared lock)
+		* @author   고재현
+		* @date		2023-01-27
+		* @version	1.0.0
+		**/
+	public:
+		LockGuard_Shared(T* lock) : _lock(lock)
+		{
+			_lock->Lock_Shared();
+		}
+		~LockGuard_Shared()
+		{
+			_lock->UnLock_Shared();
+		}
+	private:
+		T* _lock;
 	};
 }
 
