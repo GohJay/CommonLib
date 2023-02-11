@@ -19,16 +19,17 @@ int AsyncLogger::_logLevel;
 wchar_t AsyncLogger::_logPath[MAX_PATH];
 HANDLE AsyncLogger::_hWorkerThread;
 HANDLE AsyncLogger::_hExitThreadEvent;
+ObjectPool<AsyncLogger::LOG> AsyncLogger::_logPool(0, false);
 AsyncLogger AsyncLogger::_instance;
 
 AsyncLogger::AsyncLogger()
 {
 	//--------------------------------------------------------------------
 	// Initial
-	//--------------------------------------------------------------------	
+	//--------------------------------------------------------------------
 	_logIndex = 0;
 	_logLevel = LOG_LEVEL_SYSTEM;
-	_logPath[0] = L'\0';
+	wcscpy_s(_logPath, L".");
 	setlocale(LC_ALL, "");
 
 	//--------------------------------------------------------------------
@@ -72,11 +73,9 @@ void AsyncLogger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * f
 	if (_logLevel > logLevel)
 		return;
 
-	LOG* pLog = (LOG*)malloc(sizeof(LOG));
+	LOG* pLog = _logPool.Alloc();
 
 	StringCchCopy(pLog->type, sizeof(pLog->type) / 2, type);
-	
-	pLog->logLevel = logLevel;
 
 	va_list args;
 	va_start(args, fmt);
@@ -84,6 +83,7 @@ void AsyncLogger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * f
 	va_end(args);
 
 	pLog->truncated = FAILED(ret);
+	pLog->logLevel = logLevel;
 
 	//--------------------------------------------------------------------
 	// Write Post
@@ -95,11 +95,9 @@ void AsyncLogger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log
 	if (_logLevel > logLevel)
 		return;
 
-	LOG* pLog = (LOG*)malloc(sizeof(LOG));
+	LOG* pLog = _logPool.Alloc();
 
 	StringCchCopy(pLog->type, sizeof(pLog->type) / 2, type);	
-	
-	pLog->logLevel = logLevel;
 	
 	wchar_t hex[4];
 	HRESULT ret = StringCchPrintf(pLog->buffer, sizeof(pLog->buffer) / 2, L"%s - ", log);
@@ -108,8 +106,9 @@ void AsyncLogger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log
 		StringCchPrintf(hex, sizeof(hex) / 2, L"%02X", byte[i]);
 		ret = StringCchCat(pLog->buffer, sizeof(pLog->buffer) / 2, hex);
 	}
-	
+
 	pLog->truncated = FAILED(ret);
+	pLog->logLevel = logLevel;
 
 	//--------------------------------------------------------------------
 	// Write Post
@@ -199,7 +198,7 @@ void AsyncLogger::WriteProc(ULONG_PTR dwData)
 		fclose(pFile);
 	}
 
-	free(pLog);
+	_logPool.Free(pLog);
 }
 unsigned int __stdcall AsyncLogger::WorkerThread(LPVOID lpParam)
 {

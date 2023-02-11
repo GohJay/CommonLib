@@ -44,15 +44,15 @@ void ProcessUsage::Update()
 	// System 리소스 값 갱신
 	UpdateSystemValue();
 }
-float Jay::ProcessUsage::GetUseCPUTotalTime()
+float ProcessUsage::GetUseCPUTotalTime()
 {
 	return (float)_sys_CPU_UseTotal;
 }
-float Jay::ProcessUsage::GetUseCPUUserTime()
+float ProcessUsage::GetUseCPUUserTime()
 {
 	return (float)_sys_CPU_UseUser;
 }
-float Jay::ProcessUsage::GetUseCPUKernelTime()
+float ProcessUsage::GetUseCPUKernelTime()
 {
 	return (float)_sys_CPU_UseKernel;
 }

@@ -1,5 +1,6 @@
 #ifndef __ASYNC_LOG__H_
 #define __ASYNC_LOG__H_
+#include "ObjectPool.h"
 #include <Windows.h>
 
 #define LOG_LEVEL_DEBUG		0
@@ -15,8 +16,8 @@ namespace Jay
 		* @brief	Async File Logger Class
 		* @details	파일 로그 비동기 출력용 클래스
 		* @author   고재현
-		* @date		2022-12-24
-		* @version  1.0.0
+		* @date		2022-02-11
+		* @version  1.0.1
 		**/
 	private:
 		struct LOG
@@ -43,6 +44,7 @@ namespace Jay
 		static wchar_t _logPath[MAX_PATH];
 		static HANDLE _hWorkerThread;
 		static HANDLE _hExitThreadEvent;
+		static ObjectPool<LOG> _logPool;
 		static AsyncLogger _instance;
 	};
 }

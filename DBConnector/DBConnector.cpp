@@ -11,28 +11,19 @@ using namespace Jay;
 DBConnector::DBConnector()
 {
     _driver = get_driver_instance();
-
+    _lastProfileTime = 0;
     memset(&_profile, 0, sizeof(_profile));
-    QueryPerformanceFrequency(&_freqency);
-
-    _hExitThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    _profileThread = new std::thread(&DBConnector::ProfileThread, this);
+    QueryPerformanceFrequency(&_freq);
 }
 DBConnector::~DBConnector()
 {
-    SetEvent(_hExitThreadEvent);
-    _profileThread->join();
-
-    delete _profileThread;
-    CloseHandle(_hExitThreadEvent);
 }
-bool DBConnector::Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* db, bool reconnect)
+void DBConnector::Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* db, bool reconnect)
 {
     char hostName[16];
     char userName[32];
     char password[32];
     char database[32];
-
     W2M(ipaddress, hostName, sizeof(hostName));
     W2M(user, userName, sizeof(userName));
     W2M(passwd, password, sizeof(password));
@@ -64,22 +55,21 @@ bool DBConnector::Connect(const wchar_t* ipaddress, int port, const wchar_t* use
     }
     catch (sql::SQLException& ex)
     {
-        _errCode = ex.getErrorCode();
-        M2W(ex.what(), _errMessage, sizeof(_errMessage) / 2);
-        M2W(ex.getSQLStateCStr(), _sqlState, sizeof(_sqlState) / 2);
+        wchar_t errMessage[256];
+        wchar_t sqlState[256];
+        M2W(ex.what(), errMessage, sizeof(errMessage) / 2);
+        M2W(ex.getSQLStateCStr(), sqlState, sizeof(sqlState) / 2);
 
         Logger::WriteLog(L"DBConnector_Error"
             , LOG_LEVEL_ERROR
             , L"%s() - ErrorCode: %d, ErrorMessage: %s, SQLState: %s"
             , __FUNCTIONW__
-            , _errCode
-            , _errMessage
-            , _sqlState);
+            , ex.getErrorCode()
+            , errMessage
+            , sqlState);
 
-        return false;
+        throw ex;
     }
-
-	return true;
 }
 void DBConnector::Disconnect()
 {
@@ -110,22 +100,20 @@ void DBConnector::Execute(const wchar_t* query, ...)
     }
     catch (sql::SQLException& ex)
     {
-        _errCode = ex.getErrorCode();
-        M2W(ex.what(), _errMessage, sizeof(_errMessage) / 2);
-        M2W(ex.getSQLStateCStr(), _sqlState, sizeof(_sqlState) / 2);
+        wchar_t errMessage[256];
+        wchar_t sqlState[256];
+        M2W(ex.what(), errMessage, sizeof(errMessage) / 2);
+        M2W(ex.getSQLStateCStr(), sqlState, sizeof(sqlState) / 2);
 
         Logger::WriteLog(L"DBConnector_Error"
             , LOG_LEVEL_ERROR
             , L"Query: %s, ErrorCode: %d, ErrorMessage: %s, SQLState: %s"
-            , _queryw
-            , _errCode
-            , _errMessage
-            , _sqlState);
+            , __FUNCTIONW__
+            , ex.getErrorCode()
+            , errMessage
+            , sqlState);
 
-        //--------------------------------------------------------------------
-        // DB 쿼리 실패는 Fatal Error 이므로 크래시와 함께 메모리 덤프를 남긴다.
-        //--------------------------------------------------------------------
-        CrashDump::Crash();
+        throw ex;
     }
 }
 void DBConnector::ExecuteUpdate(const wchar_t* query, ...)
@@ -152,22 +140,20 @@ void DBConnector::ExecuteUpdate(const wchar_t* query, ...)
     }
     catch (sql::SQLException& ex)
     {
-        _errCode = ex.getErrorCode();
-        M2W(ex.what(), _errMessage, sizeof(_errMessage) / 2);
-        M2W(ex.getSQLStateCStr(), _sqlState, sizeof(_sqlState) / 2);
+        wchar_t errMessage[256];
+        wchar_t sqlState[256];
+        M2W(ex.what(), errMessage, sizeof(errMessage) / 2);
+        M2W(ex.getSQLStateCStr(), sqlState, sizeof(sqlState) / 2);
 
         Logger::WriteLog(L"DBConnector_Error"
             , LOG_LEVEL_ERROR
             , L"Query: %s, ErrorCode: %d, ErrorMessage: %s, SQLState: %s"
-            , _queryw
-            , _errCode
-            , _errMessage
-            , _sqlState);
+            , __FUNCTIONW__
+            , ex.getErrorCode()
+            , errMessage
+            , sqlState);
 
-        //--------------------------------------------------------------------
-        // DB 쿼리 실패는 Fatal Error 이므로 크래시와 함께 메모리 덤프를 남긴다.
-        //--------------------------------------------------------------------
-        CrashDump::Crash();
+        throw ex;
     }
 }
 sql::ResultSet* DBConnector::ExecuteQuery(const wchar_t* query, ...)
@@ -196,23 +182,20 @@ sql::ResultSet* DBConnector::ExecuteQuery(const wchar_t* query, ...)
     }
     catch (sql::SQLException& ex)
     {
-        _errCode = ex.getErrorCode();
-        M2W(ex.what(), _errMessage, sizeof(_errMessage) / 2);
-        M2W(ex.getSQLStateCStr(), _sqlState, sizeof(_sqlState) / 2);
+        wchar_t errMessage[256];
+        wchar_t sqlState[256];
+        M2W(ex.what(), errMessage, sizeof(errMessage) / 2);
+        M2W(ex.getSQLStateCStr(), sqlState, sizeof(sqlState) / 2);
 
         Logger::WriteLog(L"DBConnector_Error"
             , LOG_LEVEL_ERROR
             , L"Query: %s, ErrorCode: %d, ErrorMessage: %s, SQLState: %s"
-            , _queryw
-            , _errCode
-            , _errMessage
-            , _sqlState);
+            , __FUNCTIONW__
+            , ex.getErrorCode()
+            , errMessage
+            , sqlState);
 
-        //--------------------------------------------------------------------
-        // DB 쿼리 실패는 Fatal Error 이므로 크래시와 함께 메모리 덤프를 남긴다.
-        //--------------------------------------------------------------------
-        CrashDump::Crash();
-        return nullptr;
+        throw ex;
     }
 
     return res;
@@ -220,18 +203,6 @@ sql::ResultSet* DBConnector::ExecuteQuery(const wchar_t* query, ...)
 void DBConnector::ClearQuery(sql::ResultSet* res)
 {
     delete res;
-}
-int DBConnector::GetErrorCode()
-{
-    return _errCode;
-}
-const wchar_t* DBConnector::GetErrorMessage()
-{
-    return _errMessage;
-}
-const wchar_t* DBConnector::GetSQLState()
-{
-    return _sqlState;
 }
 void DBConnector::ProfileBegin()
 {
@@ -262,9 +233,9 @@ void DBConnector::ProfileEnd()
     _profile.iCall++;
 
     //--------------------------------------------------------------------
-    // SlowQuery 여부 판단
+    // SlowQuery 여부 확인
     //--------------------------------------------------------------------
-    LONGLONG millisecond = _freqency.QuadPart / 1000;
+    LONGLONG millisecond = _freq.QuadPart / 1000;
     double queryTime = (double)between / millisecond;
     if (queryTime >= SLOWQUERY_TIME)
     {
@@ -274,16 +245,23 @@ void DBConnector::ProfileEnd()
             , _queryw
             , queryTime);
     }
+
+    //--------------------------------------------------------------------
+    // 프로파일 데이터 파일 기록 주기 확인
+    //--------------------------------------------------------------------
+    DWORD currentTime = timeGetTime();
+    if (currentTime >= _lastProfileTime + PROFILE_TERM)
+    {
+        ProfileDataOutText();
+        _lastProfileTime = currentTime;
+    }
 }
 void DBConnector::ProfileDataOutText()
 {
     //--------------------------------------------------------------------
     // 프로파일링한 데이터를 파일에 기록
     //--------------------------------------------------------------------
-    if (_profile.iCall <= 0)
-        return;
-
-    LONGLONG millisecond = _freqency.QuadPart / 1000;
+    LONGLONG millisecond = _freq.QuadPart / 1000;
     double max = (double)_profile.iMax / millisecond;
     double min = (double)_profile.iMin / millisecond;
     unsigned long long call = _profile.iCall;
@@ -298,22 +276,4 @@ void DBConnector::ProfileDataOutText()
         , max
         , min
         , call);
-}
-void DBConnector::ProfileThread()
-{
-    DWORD ret;
-    while (1)
-    {
-        ret = WaitForSingleObject(_hExitThreadEvent, PROFILE_TERM);
-        switch (ret)
-        {
-        case WAIT_OBJECT_0:
-            return;
-        case WAIT_TIMEOUT:
-            ProfileDataOutText();
-            break;
-        default:
-            break;
-        }
-    }
 }

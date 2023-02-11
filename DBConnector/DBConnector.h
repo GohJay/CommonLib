@@ -6,7 +6,7 @@
 #include <thread>
 
 #define MAX_QUERYLEN		512
-#define SLOWQUERY_TIME		100
+#define SLOWQUERY_TIME		200
 #define PROFILE_TERM		1000 * 60 * 10
 
 namespace Jay
@@ -38,9 +38,9 @@ namespace Jay
 		* @brief	DB 연결
 		* @details
 		* @param	const wchar_t*(주소), int(포트), const wchar_t*(유저), const wchar_t*(패스워드), const wchar_t*(스키마), bool(재연결 여부)
-		* @return	bool(연결 여부)
+		* @return	void
 		**/
-		bool Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* db, bool reconnect = true);
+		void Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* db, bool reconnect = true);
 
 		/**
 		* @brief	DB 연결 종료
@@ -81,48 +81,19 @@ namespace Jay
 		* @return	void
 		**/
 		void ClearQuery(sql::ResultSet* res);
-
-		/**
-		* @brief	에러 코드 얻기
-		* @details
-		* @param	void
-		* @return	int(에러 코드)
-		**/
-		int GetErrorCode(void);
-
-		/**
-		* @brief	에러 메시지 얻기
-		* @details
-		* @param	void
-		* @return	const wchar_t*(에러 메시지)
-		**/
-		const wchar_t* GetErrorMessage(void);
-
-		/**
-		* @brief	SQL 상태 얻기
-		* @details
-		* @param	void
-		* @return	const wchar_t*(SQL 상태)
-		**/
-		const wchar_t* GetSQLState(void);
 	private:
 		void ProfileBegin(void);
 		void ProfileEnd(void);
 		void ProfileDataOutText(void);
-		void ProfileThread(void);
 	private:
 		sql::Driver* _driver;
 		sql::Connection* _conn;
 		sql::Statement* _stmt;
 		wchar_t _queryw[MAX_QUERYLEN];
 		char _query[MAX_QUERYLEN];
-		int _errCode;
-		wchar_t _errMessage[256];
-		wchar_t _sqlState[256];
 		PROFILE _profile;
-		LARGE_INTEGER _freqency;
-		HANDLE _hExitThreadEvent;
-		std::thread* _profileThread;
+		DWORD _lastProfileTime;
+		LARGE_INTEGER _freq;
 	};
 }
 
