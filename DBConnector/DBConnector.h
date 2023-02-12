@@ -2,6 +2,7 @@
 #define __DB_CONNECTOR__H_
 #define STATIC_CONCPP
 #include "MySQL/include/mysql/jdbc.h"
+#include "Lock.h"
 #include <Windows.h>
 #include <thread>
 
@@ -18,8 +19,8 @@ namespace Jay
 		* @brief	DB Connector Class
 		* @details	DB 사용을 위한 커넥터 클래스
 		* @author   고재현
-		* @date		2023-02-07
-		* @version  1.0.0
+		* @date		2023-02-13
+		* @version  1.0.1
 		**/
 	private:
 		struct PROFILE
@@ -86,14 +87,15 @@ namespace Jay
 		void ProfileEnd(void);
 		void ProfileDataOutText(void);
 	private:
-		sql::Driver* _driver;
-		sql::Connection* _conn;
-		sql::Statement* _stmt;
 		wchar_t _queryw[MAX_QUERYLEN];
 		char _query[MAX_QUERYLEN];
 		PROFILE _profile;
 		DWORD _lastProfileTime;
 		LARGE_INTEGER _freq;
+		sql::Connection* _conn;
+		sql::Statement* _stmt;
+		sql::Driver* _driver;
+		static SRWLock _driverLock;
 	};
 }
 

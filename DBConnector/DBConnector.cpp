@@ -8,12 +8,16 @@
 
 using namespace Jay;
 
+SRWLock DBConnector::_driverLock;
 DBConnector::DBConnector()
 {
-    _driver = get_driver_instance();
-    _lastProfileTime = 0;
     memset(&_profile, 0, sizeof(_profile));
+    _lastProfileTime = 0;
     QueryPerformanceFrequency(&_freq);
+
+    _driverLock.Lock();
+    _driver = get_driver_instance();
+    _driverLock.UnLock();
 }
 DBConnector::~DBConnector()
 {
