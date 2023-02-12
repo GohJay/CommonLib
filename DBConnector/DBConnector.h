@@ -94,8 +94,7 @@ namespace Jay
 		LARGE_INTEGER _freq;
 		sql::Connection* _conn;
 		sql::Statement* _stmt;
-		sql::Driver* _driver;
-		static SRWLock _driverLock;
+		static sql::Driver* _driver;
 	};
 }
 
