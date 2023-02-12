@@ -15,25 +15,27 @@ namespace Jay
 		* @date		2023-02-11
 		* @version  1.0.0
 		**/
+	private:
+		struct PROPERTY
+		{
+			wchar_t ipaddress[16];
+			int port;
+			wchar_t user[32];
+			wchar_t passwd[32];
+			wchar_t schema[32];
+			bool opt_reconnect;
+		};
 	public:
 		DBConnector_TLS();
 		~DBConnector_TLS();
 	public:
 		/**
-		* @brief	DB 연결
+		* @brief	DB 설정 정보 세팅
 		* @details
-		* @param	const wchar_t*(주소), int(포트), const wchar_t*(유저), const wchar_t*(패스워드), const wchar_t*(데이터베이스), bool(재연결 여부)
+		* @param	const wchar_t*(주소), int(포트), const wchar_t*(유저), const wchar_t*(패스워드), const wchar_t*(스키마), bool(재연결 여부)
 		* @return	void
 		**/
-		void Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* database, bool reconnect = true);
-
-		/**
-		* @brief	DB 연결 종료
-		* @details
-		* @param	void
-		* @return	void
-		**/
-		void Disconnect(void);
+		void SetProperty(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* schema, bool reconnect = true);
 
 		/**
 		* @brief	DDL, DCL, TCL 쿼리 실행
@@ -67,8 +69,9 @@ namespace Jay
 		**/
 		void ClearQuery(sql::ResultSet* res);
 	private:
-		DBConnector* GetDB();
+		DBConnector* GetCurrentDB();
 	private:
+		PROPERTY _property;
 		DWORD _tlsDB;
 		LockFreeStack<DBConnector*> _gcStack;
 	};

@@ -37,12 +37,12 @@ namespace Jay
 		static void WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYTE* byte, int byteLen);
 	private:
 		static void CALLBACK WriteProc(ULONG_PTR dwData);
-		static unsigned int WINAPI WorkerThread(LPVOID lpParam);
+		static unsigned int WINAPI WriteThread(LPVOID lpParam);
 	private:
 		static DWORD _logIndex;
 		static int _logLevel;
 		static wchar_t _logPath[MAX_PATH];
-		static HANDLE _hWorkerThread;
+		static HANDLE _hWriteThread;
 		static HANDLE _hExitThreadEvent;
 		static ObjectPool<LOG> _logPool;
 		static AsyncLogger _instance;

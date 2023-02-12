@@ -17,7 +17,7 @@ using namespace Jay;
 DWORD AsyncLogger::_logIndex;
 int AsyncLogger::_logLevel;
 wchar_t AsyncLogger::_logPath[MAX_PATH];
-HANDLE AsyncLogger::_hWorkerThread;
+HANDLE AsyncLogger::_hWriteThread;
 HANDLE AsyncLogger::_hExitThreadEvent;
 ObjectPool<AsyncLogger::LOG> AsyncLogger::_logPool(0, false);
 AsyncLogger AsyncLogger::_instance;
@@ -36,25 +36,25 @@ AsyncLogger::AsyncLogger()
 	// Thread Begin
 	//--------------------------------------------------------------------
 	_hExitThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	_hWorkerThread = (HANDLE)_beginthreadex(NULL, 0, WorkerThread, NULL, 0, NULL);
+	_hWriteThread = (HANDLE)_beginthreadex(NULL, 0, WriteThread, NULL, 0, NULL);
 }
 AsyncLogger::~AsyncLogger()
 {
 	//--------------------------------------------------------------------
 	// Exit Thread Event
 	//--------------------------------------------------------------------
-	QueueUserAPC(WriteProc, _hWorkerThread, NULL);
+	QueueUserAPC(WriteProc, _hWriteThread, NULL);
 
 	//--------------------------------------------------------------------
 	// Thread Exit Wait
 	//--------------------------------------------------------------------
-	WaitForSingleObject(_hWorkerThread, INFINITE);
+	WaitForSingleObject(_hWriteThread, INFINITE);
 
 	//--------------------------------------------------------------------
 	// Release
 	//--------------------------------------------------------------------
 	CloseHandle(_hExitThreadEvent);
-	CloseHandle(_hWorkerThread);
+	CloseHandle(_hWriteThread);
 }
 void AsyncLogger::SetLogLevel(int logLevel)
 {
@@ -88,7 +88,7 @@ void AsyncLogger::WriteLog(const wchar_t * type, int logLevel, const wchar_t * f
 	//--------------------------------------------------------------------
 	// Write Post
 	//--------------------------------------------------------------------
-	QueueUserAPC(WriteProc, _hWorkerThread, (ULONG_PTR)pLog);
+	QueueUserAPC(WriteProc, _hWriteThread, (ULONG_PTR)pLog);
 }
 void AsyncLogger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log, BYTE* byte, int byteLen)
 {
@@ -113,7 +113,7 @@ void AsyncLogger::WriteHex(const wchar_t* type, int logLevel, const wchar_t* log
 	//--------------------------------------------------------------------
 	// Write Post
 	//--------------------------------------------------------------------
-	QueueUserAPC(WriteProc, _hWorkerThread, (ULONG_PTR)pLog);
+	QueueUserAPC(WriteProc, _hWriteThread, (ULONG_PTR)pLog);
 }
 void AsyncLogger::WriteProc(ULONG_PTR dwData)
 {
@@ -200,7 +200,7 @@ void AsyncLogger::WriteProc(ULONG_PTR dwData)
 
 	_logPool.Free(pLog);
 }
-unsigned int __stdcall AsyncLogger::WorkerThread(LPVOID lpParam)
+unsigned int __stdcall AsyncLogger::WriteThread(LPVOID lpParam)
 {
 	DWORD ret;
 	do

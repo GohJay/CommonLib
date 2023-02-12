@@ -40,7 +40,7 @@ namespace Jay
 		* @param	const wchar_t*(주소), int(포트), const wchar_t*(유저), const wchar_t*(패스워드), const wchar_t*(스키마), bool(재연결 여부)
 		* @return	void
 		**/
-		void Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* db, bool reconnect = true);
+		void Connect(const wchar_t* ipaddress, int port, const wchar_t* user, const wchar_t* passwd, const wchar_t* schema, bool reconnect = true);
 
 		/**
 		* @brief	DB 연결 종료
