@@ -7,20 +7,23 @@ namespace Jay
 	inline void MultiByteToUnicode() = delete;
 	inline void UnicodeToMultiByte(const wchar_t* unicode, char* multibyte)
 	{
-		int len = WideCharToMultiByte(CP_UTF8, 0, unicode, -1, NULL, 0, NULL, NULL);
-		WideCharToMultiByte(CP_UTF8, 0, unicode, -1, multibyte, len, NULL, NULL);
+		int len = wcslen(unicode) + 1;
+		int size = WideCharToMultiByte(CP_UTF8, 0, unicode, len, NULL, 0, NULL, NULL);
+		WideCharToMultiByte(CP_UTF8, 0, unicode, len, multibyte, size, NULL, NULL);
 	}
 	inline void MultiByteToWString(const char* multibyte, std::wstring& wstr)
 	{
-		int len = MultiByteToWideChar(CP_ACP, 0, multibyte, -1, NULL, 0);
-		wstr.reserve(len);
-		MultiByteToWideChar(CP_ACP, 0, multibyte, -1, &wstr[0], len);
+		int len = strlen(multibyte) + 1;
+		int size = MultiByteToWideChar(CP_ACP, 0, multibyte, len, NULL, 0);
+		wstr.resize(size - 1);
+		MultiByteToWideChar(CP_ACP, 0, multibyte, len, &wstr[0], size);
 	}
 	inline void UnicodeToString(const wchar_t* unicode, std::string& str)
 	{
-		int len = WideCharToMultiByte(CP_UTF8, 0, unicode, -1, NULL, 0, NULL, NULL);
-		str.reserve(len);
-		WideCharToMultiByte(CP_UTF8, 0, unicode, -1, &str[0], len, NULL, NULL);
+		int len = wcslen(unicode) + 1;
+		int size = WideCharToMultiByte(CP_UTF8, 0, unicode, len, NULL, 0, NULL, NULL);
+		str.resize(size - 1);
+		WideCharToMultiByte(CP_UTF8, 0, unicode, len, &str[0], size, NULL, NULL);
 	}
 }
 
