@@ -33,12 +33,12 @@ bool ExcelParser::LoadFile(const wchar_t * filepath)
 	{
 		size_t pos;
 		size_t offset = 0;
-		_contents.push_back(std::vector<std::wstring>());
+		_contents.emplace_back(std::vector<std::wstring>());
 		do
 		{
 			pos = line.find(_delimiter, offset);
 			std::wstring token = line.substr(offset, pos - offset);
-			_contents[index].push_back(std::move(token));
+			_contents[index].emplace_back(std::move(token));
 			offset = pos + 1;
 		} while (pos != std::wstring::npos);
 		index++;
