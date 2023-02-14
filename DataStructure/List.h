@@ -93,9 +93,9 @@ namespace Jay
 			NODE* pNode = (NODE*)malloc(sizeof(NODE));
 			pNode->data = data;
 			pNode->prev = &head;
-			pNode->next = head->next;
+			pNode->next = head.next;
 			head.next->prev = pNode;
-			head->next = pNode;
+			head.next = pNode;
 			count++;
 		}
 		void push_back(T data)
