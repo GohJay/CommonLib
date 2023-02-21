@@ -1,7 +1,7 @@
 #ifndef __DB_CONNECTOR__H_
 #define __DB_CONNECTOR__H_
 #define STATIC_CONCPP
-#include "MySQL/include/mysql/jdbc.h"
+#include "../Lib/MySQL/include/mysql/jdbc.h"
 #include "Lock.h"
 #include <Windows.h>
 #include <thread>
@@ -18,9 +18,9 @@ namespace Jay
 		* @file		DBConnector.h
 		* @brief	DB Connector Class
 		* @details	DB 사용을 위한 커넥터 클래스
-		* @author   고재현
-		* @date		2023-02-13
-		* @version  1.0.1
+		* @author	고재현
+		* @date		2023-02-07
+		* @version	1.0.0
 		**/
 	private:
 		struct PROFILE

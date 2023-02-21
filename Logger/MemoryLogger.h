@@ -10,9 +10,9 @@ namespace Jay
 		* @file		MemoryLogger.h
 		* @brief	Memory Logger Class
 		* @details	메모리 로그 출력용 클래스
-		* @author   고재현
+		* @author	고재현
 		* @date		2022-12-13
-		* @version  1.0.0
+		* @version	1.0.0
 		**/
 	private:
 		MemoryLogger();

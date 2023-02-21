@@ -9,9 +9,9 @@ namespace Jay
 	* @file		ExcelParser.h
 	* @brief	엑셀 파일 파서 클래스
 	* @details	CSV, TSV 파일 형식을 지원하는 엑셀 파일 파서
-	* @author   고재현
+	* @author	고재현
 	* @date		2022-09-01
-	* @version  1.0.0
+	* @version	1.0.0
 	**/
 	class ExcelParser
 	{

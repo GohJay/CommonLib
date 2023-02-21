@@ -15,9 +15,9 @@ namespace Jay
 		* @file		AsyncLogger.h
 		* @brief	Async File Logger Class
 		* @details	파일 로그 비동기 출력용 클래스
-		* @author   고재현
+		* @author	고재현
 		* @date		2022-02-11
-		* @version  1.0.1
+		* @version	1.0.1
 		**/
 	private:
 		struct LOG

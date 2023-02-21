@@ -17,9 +17,9 @@ namespace Jay
 	* @file		Profile.h
 	* @brief	Profile Global Function
 	* @details	Profile 측정을 위한 전역 함수 (thread-safe)
-	* @author   고재현
+	* @author	고재현
 	* @date		2022-12-27
-	* @version  1.0.1
+	* @version	1.0.1
 	**/
 	void ProfileBegin(const wchar_t* tag);
 	void ProfileEnd(const wchar_t* tag);
@@ -30,9 +30,9 @@ namespace Jay
 	* @file		Profile.h
 	* @brief	Profile Guard Class
 	* @details	Profile 측정의 시작과 종료를 보장하기 위한 Guard Class
-	* @author   고재현
+	* @author	고재현
 	* @date		2022-5-28
-	* @version  1.0.0
+	* @version	1.0.0
 	**/
 	class GUARD_PROFILE
 	{

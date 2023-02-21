@@ -10,9 +10,9 @@ namespace Jay
 		* @file		ProcessUsage.h
 		* @brief	Process Performance Usage Class
 		* @details	프로세스 성능 모니터 클래스
-		* @author   고재현
+		* @author	고재현
 		* @date		2023-02-10
-		* @version  1.0.0
+		* @version	1.0.0
 		**/
 	public:
 		ProcessUsage(HANDLE hProcess = INVALID_HANDLE_VALUE);

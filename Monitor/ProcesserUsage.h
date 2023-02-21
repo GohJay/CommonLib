@@ -12,9 +12,9 @@ namespace Jay
 		* @file		ProcesserUsage.h
 		* @brief	Processer Performance Usage Class
 		* @details	프로세서 성능 모니터 클래스
-		* @author   고재현
+		* @author	고재현
 		* @date		2023-02-10
-		* @version  1.0.0
+		* @version	1.0.0
 		**/
 	private:
 		struct ETHERNET

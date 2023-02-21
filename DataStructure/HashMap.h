@@ -16,9 +16,9 @@ namespace Jay
 	* @file		HashMap.h
 	* @brief	HashMap Template Class
 	* @details	Iterator 패턴으로 구현한 해시테이블 클래스
-	* @author   고재현
+	* @author	고재현
 	* @date		2023-01-08
-	* @version  1.0.1
+	* @version	1.0.1
 	**/
 	template<typename K, typename V>
 	class HashMap
