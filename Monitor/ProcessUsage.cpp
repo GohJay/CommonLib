@@ -11,7 +11,7 @@ ProcessUsage::ProcessUsage(HANDLE hProcess)
 		hProcess = GetCurrentProcess();
 
 	_hProcess = hProcess;
-	GetModuleName(_hProcess, _processName);
+	GetModuleName(_hProcess, _processName, sizeof(_processName));
 
 	// PDH 쿼리 핸들 열기
 	PdhOpenQuery(NULL, NULL, &_pdhQuery);
