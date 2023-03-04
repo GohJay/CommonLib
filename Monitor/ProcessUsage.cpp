@@ -58,7 +58,7 @@ float ProcessUsage::GetUseCPUKernelTime()
 }
 float ProcessUsage::GetUseMemoryMBytes()
 {
-	return (float)(_pdh_Value_Memory_UsePrivateBytes / (1000 * 1000));
+	return (float)(_pdh_Value_Memory_UsePrivateBytes / (1024 * 1024));
 }
 void ProcessUsage::InitPDHCounter()
 {
