@@ -34,14 +34,14 @@ namespace Jay
 	* @date		2022-5-28
 	* @version	1.0.0
 	**/
-	class GUARD_PROFILE
+	class ProfileGuard
 	{
 	public:
-		GUARD_PROFILE(const wchar_t* tag) : _tag(tag)
+		ProfileGuard(const wchar_t* tag) : _tag(tag)
 		{
 			PRO_BEGIN(_tag)
 		}
-		~GUARD_PROFILE()
+		~ProfileGuard()
 		{
 			PRO_END(_tag)
 		}
